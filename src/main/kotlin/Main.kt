@@ -23,33 +23,33 @@ enum class TAAM(val char:Char,val nikkud_name:String) {
 fun Iterable<String>.toCSV() : String{
 	return reduce{accumulator, s->accumulator+","+s}
 }
-fun error(msg : String) : Nothing {
+fun exitWithError(msg : String) : Nothing {
    println(msg);
    exitProcess(1);
 }
 fun main(args: Array<String>){
 	if (args.size < 1)
-		error("לא התקבל קובץ");
+		exitWithError("לא התקבל קובץ");
     
     val input_file : File = File(args[0]);
 	if (!input_file.exists())
-		error("אין קובץ בשם "+args[0]);
+		exitWithError("אין קובץ בשם "+args[0]);
     val wanted_combinations_file : File = File("../צירופים_רצויים.txt");
 
 	if (!wanted_combinations_file.exists())
-		error("אין קובץ צירופים_רצויים.txt");
+		exitWithError("אין קובץ צירופים_רצויים.txt");
     /* create a map of words from the combinations file.
      * with the key being a Set of Teamim and the value being an empty mutable set.  */
     val map_of_words : Map<Set<TAAM>, MutableSet<String>> = buildMap {
 	    wanted_combinations_file.forEachLine{line->
 		    put(line.split(",").map{nikkud_name->
 			    TAAM.byNikkudName(nikkud_name)?:
-			    error(" אין ניקוד בשם" + nikkud_name);
+			    exitWithError(" אין ניקוד בשם" + nikkud_name);
 		    }.toSet(), mutableSetOf<String>());
 	    }
     }
     if (map_of_words.isEmpty())
-	   error("קובץ צירופים ריק");
+	   exitWithError("קובץ צירופים ריק");
 	/* filter the nikkud from each word of the input file and put it
 	 * into the corresponding MutableSet */
     input_file.forEachLine{line ->
