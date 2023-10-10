@@ -66,7 +66,7 @@ fun main(args: Array<String>){
 
     val output_file = File(args[0]+".csv")
 	/* Write the names of the nikkud combinations into the CSV */
-    output_file.writeText(map_of_words.keys.
+    output_file.writeText("\ufeff"+map_of_words.keys.
 	    map{nikkud_set->"\""+
 			nikkud_set.
 			map{it.nikkud_name}.
