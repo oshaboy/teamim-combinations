@@ -1,5 +1,6 @@
 import java.io.*;
 import kotlin.system.exitProcess;
+import javax.swing.JOptionPane.showMessageDialog;
 val NIKKUD_BLOCK=0x5b0;
 val NIKKUD_BLOCK_END=0x5bc;
 enum class TAAM(val char:Char,val nikkud_name:String) {
@@ -24,7 +25,7 @@ fun Iterable<String>.toCSV() : String{
 	return reduce{accumulator, s->accumulator+","+s}
 }
 fun exitWithError(msg : String) : Nothing {
-   println(msg);
+   showMessageDialog(null,msg);
    exitProcess(1);
 }
 fun main(args: Array<String>){
