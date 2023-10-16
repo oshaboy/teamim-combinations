@@ -1,6 +1,7 @@
 import java.io.*;
 import kotlin.system.exitProcess;
 import javax.swing.JOptionPane.showMessageDialog;
+import javax.swing.JFileChooser;
 val NIKKUD_BLOCK=0x5b0;
 val NIKKUD_BLOCK_END=0x5bc;
 enum class TAAM(val char:Char,val nikkud_name:String) {
@@ -29,14 +30,15 @@ fun exitWithError(msg : String) : Nothing {
    exitProcess(1);
 }
 fun main(args: Array<String>){
-	if (args.size < 1)
+	val file_chooser = JFileChooser();
+	file_chooser.showOpenDialog(null);
+	val input_file : File? = file_chooser.getSelectedFile();
+	if (input_file == null)
 		exitWithError("לא התקבל קובץ");
-    
-    val input_file : File = File(args[0]);
+	val filename : String = input_file.getAbsolutePath();
 	if (!input_file.exists())
-		exitWithError("אין קובץ בשם "+args[0]);
-    val wanted_combinations_file : File = File("../צירופים_רצויים.txt");
-
+		exitWithError("אין קובץ בשם "+filename);
+	val wanted_combinations_file : File = File("../צירופים_רצויים.txt");
 	if (!wanted_combinations_file.exists())
 		exitWithError("אין קובץ צירופים_רצויים.txt");
     /* create a map of words from the combinations file.
@@ -64,7 +66,7 @@ fun main(args: Array<String>){
 	    }
     }
 
-    val output_file = File(args[0]+".csv")
+    val output_file = File(filename+".csv")
 	/* Write the names of the nikkud combinations into the CSV */
     output_file.writeText("\ufeff"+map_of_words.keys.
 	    map{nikkud_set->"\""+
