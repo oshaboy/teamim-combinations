@@ -2,24 +2,24 @@ import java.io.*;
 import kotlin.system.exitProcess;
 import javax.swing.JOptionPane.showMessageDialog;
 import javax.swing.JFileChooser;
-val NIKKUD_BLOCK=0x5b0;
-val NIKKUD_BLOCK_END=0x5bc;
-enum class TAAM(val char:Char,val nikkud_name:String) {
-	SHVA(0x5b0.toChar(),"שווא"),
-	CHATAF_SEGOL(0x5b1.toChar(),"חטףסגל"),
-	CHATAF_PATACH(0x5b2.toChar(),"חטףפתח"),
-	CHATAF_KAMATZ(0x5b3.toChar(),"חטףקמץ"),
-	CHIRIK(0x5b4.toChar(),"חיריק"),
-	TSEREI(0x5b5.toChar(),"צרי"),
-	SEGOL(0x5b6.toChar(), "סגל"),
-	PATACH(0x5b7.toChar(),"פתח"),
-	KAMATZ(0x5b8.toChar(),"קמץ"),   
-	HOLAM(0x5b9.toChar(),"חולם"),
-	HOLAM_MALEH(0x5ba.toChar(),"חולםמלא"),
-	KUBUTZ(0x5bb.toChar(),"קבץ");
+
+enum class TAAM(val nikkud_string:String,val nikkud_name_match:String, val nikkud_name_display : String) {
+	SHVA("\u05b0","שווא","שווא"),
+	CHATAF_SEGOL("\u05b1","חטףסגל","חטף סגל"),
+	CHATAF_PATACH("\u05b2","חטףפתח","חטף פתח"),
+	CHATAF_KAMATZ("\u05b3","חטףקמץ","חטף קמץ"),
+	CHIRIK("\u05b4","חיריק","חיריק"),
+	TSEREI("\u05b5","צרי","צרי"),
+	SEGOL("\u05b6", "סגל", "סגל"),
+	PATACH("\u05b7","פתח","פתח"),
+	KAMATZ("\u05b8","קמץ","קמץ"),   
+	HOLAM("\u05b9","חולם","חולם"),
+	HOLAM_MALEH("\u05ba","חולםמלא","חולם מלא"),
+	KUBUTZ("\u05bb","קבץ","קבץ"),
+	SHURUK("\u05d5\u05bc", "שורוק", "שורוק");
 	companion object {
-		fun byUnicodeValue(char: Char) = values().firstOrNull { it.char == char }
-		fun byNikkudName(nikkud_name : String) = values().firstOrNull {it.nikkud_name==nikkud_name}
+		fun byUnicodeValue(nikkud_string: String) = values().firstOrNull { it.nikkud_string == nikkud_string }
+		fun byNikkudName(nikkud_name : String) = values().firstOrNull {it.nikkud_name_match==nikkud_name}
 	}
 }
 fun Iterable<String>.toCSV() : String {
@@ -45,15 +45,18 @@ fun main() {
      * with the key being a Set of Teamim and the value being an empty mutable set.  */
     val map_of_words : Map<Set<TAAM>, MutableSet<String>> = buildMap {
 	    wanted_combinations_file.forEachLine {line->
-		    put(line.split(",").map {nikkud_name->
-				val nikkud_name_sans_whitespace=nikkud_name.filterNot {it.isWhitespace()};
-				if (nikkud_name_sans_whitespace.isEmpty()){
-					exitWithError("רצף פסיקים בקובץ צירופים_רצויים או פסיק בסוף שורה");
-				} else {
-			    	TAAM.byNikkudName(nikkud_name_sans_whitespace)?:
-			    	exitWithError(" אין ניקוד בשם" + nikkud_name);
-				}
-		    }.toSet(), mutableSetOf<String>());
+			if (!line.isEmpty()){
+				put(line.split(",").map {nikkud_name->
+					val nikkud_name_sans_whitespace=nikkud_name.filterNot {it.isWhitespace()};
+					
+					if (nikkud_name_sans_whitespace.isEmpty()){
+						exitWithError("רצף פסיקים בקובץ צירופים_רצויים או פסיק בסוף שורה");
+					} else {
+						TAAM.byNikkudName(nikkud_name_sans_whitespace)?:
+						exitWithError(" אין ניקוד בשם" + nikkud_name);
+					}
+				}.toSet(), mutableSetOf<String>());
+			}
 	    }
     }
     if (map_of_words.isEmpty())
@@ -64,10 +67,9 @@ fun main() {
 	    val words=line.split("[\\p{Punct}\\p{Space}]".toRegex());
 	    words.forEach {
 			word : String ->
-		    val nikkud : Set<TAAM> = word.filter{c ->
-			    c.code >= NIKKUD_BLOCK
-			    && c.code < NIKKUD_BLOCK_END
-		    }.map {c->TAAM.byUnicodeValue(c)!!}.toSet();
+			val nikkud : Set<TAAM> = TAAM.values().filter {taam->
+				taam.nikkud_string.toRegex().find(word)!=null
+			}.toSet();
 		    map_of_words.get(nikkud)?.add(word);
 	    }
     }
@@ -77,7 +79,7 @@ fun main() {
     output_file.writeText("\ufeff"+map_of_words.keys.
 	    map {nikkud_set->"\""+
 			nikkud_set.
-			map {it.nikkud_name}.
+			map {it.nikkud_name_display}.
 			toCSV()+"\""}.
 	    toCSV()+"\n"
     );
