@@ -14,7 +14,7 @@ enum class TAAM(val nikkud_string:String,val nikkud_name_match:String, val nikku
 	PATACH("\u05b7","פתח","פתח"),
 	KAMATZ("\u05b8","קמץ","קמץ"),   
 	HOLAM("\u05b9","חולם","חולם"),
-	HOLAM_MALEH("\u05ba","חולםמלא","חולם מלא"),
+	HOLAM_MALEH("\u05ba","חולםחסר","חולם חסר"),
 	KUBUTZ("\u05bb","קבץ","קבץ"),
 	SHURUK("\u05d5\u05bc", "שורוק", "שורוק");
 	companion object {
@@ -48,7 +48,7 @@ fun main() {
 			if (!line.isEmpty()){
 				put(line.split(",").map {nikkud_name->
 					val nikkud_name_sans_whitespace=nikkud_name.filterNot {it.isWhitespace()};
-					
+					//println(nikkud_name_sans_whitespace);
 					if (nikkud_name_sans_whitespace.isEmpty()){
 						exitWithError("רצף פסיקים בקובץ צירופים_רצויים או פסיק בסוף שורה");
 					} else {
