@@ -3,22 +3,21 @@ import kotlin.system.exitProcess;
 import javax.swing.JOptionPane.showMessageDialog;
 import javax.swing.JFileChooser;
 
-enum class TAAM(val nikkud_string:String,val nikkud_name_match:String, val nikkud_name_display : String) {
-	SHVA("\u05b0","שווא","שווא"),
-	CHATAF_SEGOL("\u05b1","חטףסגל","חטף סגל"),
-	CHATAF_PATACH("\u05b2","חטףפתח","חטף פתח"),
-	CHATAF_KAMATZ("\u05b3","חטףקמץ","חטף קמץ"),
-	CHIRIK("\u05b4","חיריק","חיריק"),
-	TSEREI("\u05b5","צרי","צרי"),
-	SEGOL("\u05b6", "סגל", "סגל"),
-	PATACH("\u05b7","פתח","פתח"),
-	KAMATZ("\u05b8","קמץ","קמץ"),   
-	HOLAM("\u05b9","חולם","חולם"),
-	HOLAM_MALEH("\u05ba","חולםחסר","חולם חסר"),
-	KUBUTZ("\u05bb","קבץ","קבץ"),
-	SHURUK("\u05d5\u05bc", "שורוק", "שורוק");
+enum class TAAM(val nikkud_regex:Regex,val nikkud_name_match:String, val nikkud_name_display : String) {
+	SHVA(Regex.fromLiteral("\u05b0"),"שווא","שווא"),
+	CHATAF_SEGOL(Regex.fromLiteral("\u05b1"),"חטףסגל","חטף סגל"),
+	CHATAF_PATACH(Regex.fromLiteral("\u05b2"),"חטףפתח","חטף פתח"),
+	CHATAF_KAMATZ(Regex.fromLiteral("\u05b3"),"חטףקמץ","חטף קמץ"),
+	CHIRIK(Regex.fromLiteral("\u05b4"),"חיריק","חיריק"),
+	TSEREI(Regex.fromLiteral("\u05b5"),"צרי","צרי"),
+	SEGOL(Regex.fromLiteral("\u05b6"), "סגל", "סגל"),
+	PATACH(Regex.fromLiteral("\u05b7"),"פתח","פתח"),
+	KAMATZ(Regex.fromLiteral("\u05b8"),"קמץ","קמץ"),   
+	HOLAM(Regex.fromLiteral("\u05b9|\u05ba"),"חולם","חולם"),
+	KUBUTZ(Regex.fromLiteral("\u05bb"),"קבץ","קבץ"),
+	SHURUK(Regex.fromLiteral("\u05d5\u05bc"), "שורוק", "שורוק");
 	companion object {
-		fun byUnicodeValue(nikkud_string: String) = values().firstOrNull { it.nikkud_string == nikkud_string }
+		//fun byUnicodeValue(nikkud_regex: String) = values().firstOrNull { it.nikkud_regex == nikkud_regex.toRegex() }
 		fun byNikkudName(nikkud_name : String) = values().firstOrNull {it.nikkud_name_match==nikkud_name}
 	}
 }
@@ -68,7 +67,7 @@ fun main() {
 	    words.forEach {
 			word : String ->
 			val nikkud : Set<TAAM> = TAAM.values().filter {taam->
-				taam.nikkud_string.toRegex().find(word)!=null
+				taam.nikkud_regex.find(word)!=null
 			}.toSet();
 		    map_of_words.get(nikkud)?.add(word);
 	    }
